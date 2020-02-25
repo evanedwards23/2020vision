@@ -5,9 +5,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Robot extends TimedRobot
 {
@@ -19,23 +21,34 @@ public class Robot extends TimedRobot
 
   public XboxController controller;
   public GrabberMech grabberMech;
+  public DifferentialDrive drivetrain;
 
   @Override
   public void robotInit()
   {
-    m21 = new WPI_TalonSRX(21);
-    m22 = new WPI_TalonSRX(22);
-    m23 = new WPI_TalonSRX(23);
-    m24 = new WPI_TalonSRX(24);
+    {     /* DRIVETRAIN INIT */
+      m23 = new WPI_TalonSRX(23);
+      m24 = new WPI_TalonSRX(24);
+      SpeedControllerGroup tankLeft = new SpeedControllerGroup(m23/*, . . . */);
+      SpeedControllerGroup tankRight = new SpeedControllerGroup(m24/*, . . . */);
+      drivetrain = new DifferentialDrive(tankLeft, tankRight);
+    }
 
-    solenoid01 = new DoubleSolenoid(0, 1);
-    solenoid23 = new DoubleSolenoid(2, 3);
-    compressor = new Compressor(0);
-    compressor.setClosedLoopControl(true);
+    {     /* GRABBER MECH INIT */
+      m21 = new WPI_TalonSRX(21);
+      m22 = new WPI_TalonSRX(22);
+      m22.setInverted(true);
+
+      solenoid01 = new DoubleSolenoid(0, 1);
+      solenoid23 = new DoubleSolenoid(2, 3);
+      compressor = new Compressor(0);
+      compressor.setClosedLoopControl(true);
+
+      grabberMech = new GrabberMech(solenoid01, solenoid23, m21, m22);
+      grabberMech.setLaunchMode(true);
+    }
 
     controller = new XboxController(0);
-    grabberMech = new GrabberMech(solenoid01, solenoid23);
-    grabberMech.setLaunchMode(true);
   }
 
   @Override
@@ -59,11 +72,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    double speed = controller.getTriggerAxis(Hand.kRight) - controller.getTriggerAxis(Hand.kLeft);
-    m21.set(speed);
-    m22.set(-speed);
-
-    if (controller.getAButtonReleased())
-      grabberMech.toggleLaunchMode();
+    grabberMech.updateControls(controller);
+    drivetrain.arcadeDrive(controller.getY(Hand.kLeft), -controller.getX(Hand.kRight), true);
   }
 }
