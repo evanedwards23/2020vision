@@ -37,8 +37,8 @@ public class GrabberMech
     public void setLaunchMode(boolean launchMode)
     {
         this.launchMode = launchMode;
-        leftAct.set(launchMode ? Value.kReverse : Value.kForward);
-        rightAct.set(launchMode ? Value.kReverse : Value.kForward);
+        //leftAct.set(launchMode ? Value.kReverse : Value.kForward);
+        //rightAct.set(launchMode ? Value.kReverse : Value.kForward);
     }
 
     public void setIntakeSpeed(double speed)
