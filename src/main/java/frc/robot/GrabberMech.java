@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -9,11 +8,11 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 public class GrabberMech
 {
     public DoubleSolenoid leftAct, rightAct;
-    public SpeedController[] intakes;
+    public GrabberMotor[] intakes;
 
     public boolean launchMode = false;
 
-    public GrabberMech(DoubleSolenoid leftAct, DoubleSolenoid rightAct, SpeedController ... intakes)
+    public GrabberMech(DoubleSolenoid leftAct, DoubleSolenoid rightAct, GrabberMotor ... intakes)
     {
         this.leftAct = leftAct;
         this.rightAct = rightAct;
@@ -43,8 +42,7 @@ public class GrabberMech
 
     public void setIntakeSpeed(double speed)
     {
-        double directional = (launchMode ? -1 : 1) * speed;
-        for (SpeedController intake : intakes)
-            intake.set(directional);
+        for (GrabberMotor intake : intakes)
+            intake.set(speed, launchMode);
     }
 }
